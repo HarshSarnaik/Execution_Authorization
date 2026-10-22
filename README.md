@@ -179,4 +179,4 @@ When running successfully, you will see telemetry and enforcement logs:
 ```
 
 ## 📜 License
-*Specify your license here (e.g., MIT, GPLv3).*
+MIT License
