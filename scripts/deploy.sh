@@ -1,0 +1,36 @@
+#!/bin/bash
+if [ "$EUID" -ne 0 ]; then
+  echo "[-] Deployment failed: Please run with sudo."
+  exit 1
+fi
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+echo "[*] Compiling latest EAL binary..."
+cd "$PROJECT_ROOT/build" || exit 1
+cmake ..
+make -j$(nproc)
+
+echo "[*] Installing EAL binary and eal-ctl to /usr/local/bin..."
+cp eal_daemon /usr/local/bin/eal_daemon
+chmod 700 /usr/local/bin/eal_daemon
+cp eal_focus /usr/local/bin/eal_focus
+chmod 700 /usr/local/bin/eal_focus
+
+cp "$PROJECT_ROOT/scripts/eal-ctl" /usr/local/bin/eal-ctl
+chmod +x /usr/local/bin/eal-ctl
+
+echo "[*] Installing systemd service..."
+cp "$PROJECT_ROOT/scripts/eal.service" /etc/systemd/system/
+systemctl daemon-reload
+
+# PREVENT AUTOSTART ON BOOT
+echo "[*] Disabling autostart on boot for safety..."
+systemctl disable eal.service 2>/dev/null
+systemctl stop eal.service 2>/dev/null
+
+echo "[+] Generating initial system whitelist..."
+/usr/local/bin/eal-ctl whitelist
+
+echo -e "\n\033[1;32m[+] EAL deployed successfully! Boot autostart is DISABLED.\033[0m"
+echo -e "\033[1;36m[*] Run 'sudo eal-ctl' anytime to open your CLI dashboard.\033[0m"

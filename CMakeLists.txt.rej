@@ -1,0 +1,15 @@
+--- CMakeLists.txt
++++ CMakeLists.txt
+@@ -30,3 +32,12 @@ target_link_libraries(eal_daemon PRIVATE
+     Threads::Threads
+ )
+ 
++# Application-scoped runtime authorization / Focus Mode
++add_executable(eal_focus
++    src/application/focus_monitor_main.cpp
++    src/application/focus_monitor.cpp
++    src/enforcement/pidfd_manager.cpp
++    src/profiler/resource_monitor.cpp
++    src/engine/trust_scorer.cpp
++)
++target_link_libraries(eal_focus PRIVATE Threads::Threads)

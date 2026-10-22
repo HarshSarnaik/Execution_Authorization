@@ -1,0 +1,23 @@
+[Unit]
+Description=Execution Authorization Layer (EAL) Security Daemon
+After=network.target
+
+[Service]
+Type=simple
+# Execute the daemon directly from the local bin directory
+ExecStart=/usr/local/bin/eal_daemon
+
+# Aggressive restart policy to ensure continuous enforcement
+Restart=always
+RestartSec=2
+
+# Pipe all telemetry and enforcement logs directly to the system journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=eal_daemon
+
+# Allow EAL to hold open a massive number of PIDFDs safely
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
